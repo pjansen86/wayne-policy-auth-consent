@@ -1,0 +1,18 @@
+*{box-sizing:border-box}
+body{margin:0;background:#f6f7fa;color:#161b27;font:16px/1.55 system-ui,-apple-system,sans-serif}
+main{width:min(660px,calc(100% - 32px));margin:7vh auto;background:#fff;border:1px solid #d8dfea;border-radius:16px;padding:clamp(20px,5vw,36px);box-shadow:0 12px 35px #1018280d}
+h1{font-size:clamp(1.35rem,4vw,1.8rem);line-height:1.25;margin:0 0 14px}
+h2{font-size:1.1rem;margin:20px 0 8px}
+p{margin:8px 0 15px}
+.minor{font-size:.89rem;color:#586176}
+.detail{padding:13px 16px;background:#f6f7fb;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
+label{display:block;font-weight:600;margin:10px 0 5px}
+input{display:block;width:100%;padding:12px;border:1px solid #9ba7ba;border-radius:9px;font:inherit}
+button{border:0;border-radius:10px;padding:12px 17px;font:600 1rem system-ui;cursor:pointer;margin:12px 8px 0 0;background:#202d48;color:#fff}
+button.secondary{background:#e7ecf3;color:#202d48}
+button:disabled{opacity:.55;cursor:wait}
+button:focus-visible,input:focus-visible{outline:3px solid #3c72da;outline-offset:3px}
+[hidden]{display:none!important}
+#status[role=alert]{color:#9f2333}
+#status{min-height:26px;margin-top:18px}
+.divider{height:1px;background:#e5eaf1;margin:22px 0}

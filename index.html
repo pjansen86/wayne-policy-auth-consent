@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self' https://esm.sh; style-src 'self'; connect-src https://tdbjbkmptuvgmzihsewn.supabase.co https://esm.sh; img-src 'self' data:; form-action 'none'; object-src 'none'; base-uri 'none'">
+  <title>Wayne Policy Administrator — ChatGPT Connection</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main>
+  <h1>Connect ChatGPT to Wayne Policy Administrator</h1>
+  <p>Review who is requesting access before allowing the connection.</p>
+  <p class="minor">This grants an OAuth connection only. Administrator changes require separate verified approval.</p>
+  <div class="divider"></div>
+  <section id="login" hidden>
+    <h2>Sign in</h2>
+    <p>Use the email address invited to the dedicated administrator authentication project.</p>
+    <form id="email-form">
+      <label for="email">Email address</label>
+      <input id="email" type="email" autocomplete="email" required maxlength="254">
+      <button id="email-submit" type="submit">Email a sign-in link</button>
+    </form>
+    <p class="minor">Sign-in does not create accounts. An administrator must invite you first.</p>
+  </section>
+  <section id="consent" hidden>
+    <h2>Review connection</h2>
+    <div class="detail"><strong>Requesting application</strong><p id="client-name"></p></div>
+    <div class="detail"><strong>Callback address</strong><p id="callback"></p></div>
+    <div class="detail"><strong>Requested OAuth scopes</strong><p id="scopes"></p></div>
+    <button id="approve" type="button">Allow ChatGPT connection</button>
+    <button id="deny" class="secondary" type="button">Deny</button>
+  </section>
+  <section id="complete" hidden>
+    <h2>Already authorized</h2>
+    <p>This OAuth connection was previously authorized.</p>
+    <button id="continue" type="button">Continue to ChatGPT</button>
+  </section>
+  <p id="status" role="status" aria-live="polite">Checking your authorization request…</p>
+  <button id="signout" class="secondary" type="button" hidden>Sign out</button>
+  <script id="client-config" type="application/json">{"projectUrl":"https://tdbjbkmptuvgmzihsewn.supabase.co","publicKey":"sb_publishable_j01D691sC69YCGBMhk3LLA_BLoUsFF4"}</script>
+  <script type="module" src="./client.js"></script>
+</main>
+</body>
+</html>
