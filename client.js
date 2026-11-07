@@ -13,7 +13,7 @@ const supabase=createClient(config.projectUrl,config.publicKey,{
 const $=id=>document.getElementById(id);
 const status=$("status"), login=$("login"),consent=$("consent"),
       complete=$("complete"),signout=$("signout");
-let busy=false,details=null,priorRedirect=null;
+let busy=false,checking=false,details=null,priorRedirect=null;
 function message(msg,error=false){
   status.textContent=msg;
   status.setAttribute("role",error?"alert":"status");
@@ -40,40 +40,48 @@ function chatGptRedirect(value){
   return url.href;
 }
 async function refresh(){
-  if(busy)return;
-  message("Checking account and authorization request...");
-  const {data:userData}=await supabase.auth.getUser();
-  if(!userData?.user){
-    signout.hidden=true;view("login");
-    message("Sign in using the email account invited to this project.");
-    return;
-  }
-  signout.hidden=false;
-  const {data,error}=await supabase.auth.oauth.getAuthorizationDetails(
-    config.authorizationId);
-  if(error||!data){
-    view("login");login.hidden=true;
-    message("Authorization request could not be verified. Reconnect from ChatGPT.",true);
-    return;
-  }
-  if(!("authorization_id" in data)){
-    try{priorRedirect=chatGptRedirect(data.redirect_url);}
+  // SIGNED_IN may fire concurrently with startup. Exactly one OAuth details
+  // request may receive an already-authorized callback for this connection.
+  if(busy||checking||priorRedirect)return;
+  checking=true;
+  try{
+    message("Checking account and authorization request...");
+    const {data:userData}=await supabase.auth.getUser();
+    if(!userData?.user){
+      signout.hidden=true;view("login");
+      message("Sign in using the email account invited to this project.");
+      return;
+    }
+    signout.hidden=false;
+    const {data,error}=await supabase.auth.oauth.getAuthorizationDetails(
+      config.authorizationId);
+    if(error||!data){
+      view("login");login.hidden=true;
+      message("Authorization request could not be verified. Reconnect from ChatGPT.",true);
+      return;
+    }
+    if(!("authorization_id" in data)){
+      try{priorRedirect=chatGptRedirect(data.redirect_url);}
+      catch{message("Unexpected callback destination. Connection refused.",true);return;}
+      view("complete");message("This connection was previously authorized.");
+    // OAuth consent is already recorded. Continue to the provider-issued
+    // ChatGPT callback without another human approval or extra page.
+    location.assign(priorRedirect);return;
+    }
+    if(typeof data.client?.name!=="string"||
+       typeof data.redirect_uri!=="string"||
+       typeof data.scope!=="string"){
+      message("Incomplete OAuth request; connection refused.",true);return;
+    }
+    try{chatGptRedirect(data.redirect_uri);}
     catch{message("Unexpected callback destination. Connection refused.",true);return;}
-    view("complete");message("This connection was previously authorized.");return;
-  }
-  if(typeof data.client?.name!=="string"||
-     typeof data.redirect_uri!=="string"||
-     typeof data.scope!=="string"){
-    message("Incomplete OAuth request; connection refused.",true);return;
-  }
-  try{chatGptRedirect(data.redirect_uri);}
-  catch{message("Unexpected callback destination. Connection refused.",true);return;}
-  details=data;
-  $("client-name").textContent=data.client.name;
-  $("callback").textContent=data.redirect_uri;
-  $("scopes").textContent=data.scope.trim()||"(none requested)";
-  view("consent");
-  message("Review the client and permissions before deciding.");
+    details=data;
+    $("client-name").textContent=data.client.name;
+    $("callback").textContent=data.redirect_uri;
+    $("scopes").textContent=data.scope.trim()||"(none requested)";
+    view("consent");
+    message("Review the client and permissions before deciding.");
+  }finally{checking=false;}
 }
 $("email-form").addEventListener("submit",async(event)=>{
   event.preventDefault();
